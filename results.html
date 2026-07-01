@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Your Creative Career Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0F0A1E; --surface: #1A1130; --border: rgba(255,255,255,0.1); }
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: #fff;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── ENTRY SCREEN ── */
+    #s-entry {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 40px 28px;
+      background: linear-gradient(150deg, #1E0A3C 0%, #0F0A1E 100%);
+    }
+    .entry-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 100px; padding: 8px 18px; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 40px;
+    }
+    .entry-icon { font-size: 72px; display: block; margin-bottom: 28px; }
+    .entry-title { font-size: 36px; font-weight: 800; line-height: 1.1; margin-bottom: 14px; }
+    .entry-sub { font-size: 16px; opacity: 0.6; line-height: 1.6; max-width: 340px; margin: 0 auto 40px; }
+    .entry-input {
+      display: block; width: 100%; max-width: 320px;
+      background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 14px; padding: 18px 22px; font-family: inherit;
+      font-size: 18px; font-weight: 700; color: #fff; text-align: center;
+      outline: none; margin-bottom: 20px; transition: border-color 0.2s;
+    }
+    .entry-input::placeholder { color: rgba(255,255,255,0.3); }
+    .entry-input:focus { border-color: rgba(255,255,255,0.5); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #7B2FBE, #4338CA);
+      color: #fff; border: none; border-radius: 100px;
+      padding: 18px 36px; font-family: inherit; font-size: 17px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 8px 32px rgba(123,47,190,0.4);
+      transition: transform 0.12s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.5; pointer-events: none; }
+    .error-msg { color: #F87171; font-size: 14px; font-weight: 600; margin-top: 16px; min-height: 20px; }
+
+    /* ── LOADING ── */
+    #s-loading {
+      display: none; min-height: 100vh;
+      align-items: center; justify-content: center; flex-direction: column;
+      background: linear-gradient(150deg, #1E0A3C 0%, #0F0A1E 100%);
+      gap: 24px;
+    }
+    .spinner {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: #7B2FBE;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 16px; opacity: 0.6; font-weight: 600; }
+
+    /* ── RESULTS ── */
+    #s-results {
+      display: none; min-height: 100vh;
+      flex-direction: column; align-items: center;
+      padding: 40px 20px 80px;
+      background: linear-gradient(150deg, #1E0A3C 0%, #0F0A1E 100%);
+    }
+
+    .results-header {
+      text-align: center; margin-bottom: 36px;
+    }
+    .results-greeting { font-size: 14px; opacity: 0.5; font-weight: 600; margin-bottom: 8px; }
+    .results-name { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
+    .results-sub { font-size: 15px; opacity: 0.5; }
+
+    /* Four day badges row */
+    .days-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; width: 100%; max-width: 420px; margin-bottom: 32px;
+    }
+    .day-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 18px; padding: 16px; text-align: center;
+    }
+    .day-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; margin-bottom: 8px; }
+    .day-mini-icon { width: 48px; height: 48px; margin: 0 auto 8px; }
+    .day-persona { font-size: 14px; font-weight: 800; }
+    .day-quiz-name { font-size: 11px; opacity: 0.5; margin-top: 3px; line-height: 1.3; }
+
+    /* Combined persona */
+    .combined-section {
+      width: 100%; max-width: 420px; margin-bottom: 20px; text-align: center;
+    }
+    .combined-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      opacity: 0.4; margin-bottom: 20px; display: block;
+    }
+    .combined-icon {
+      width: 160px; height: 160px; margin: 0 auto 20px;
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .combined-persona-name {
+      font-size: 40px; font-weight: 800; margin-bottom: 8px;
+      background: linear-gradient(135deg, #C084FC, #818CF8, #67E8F9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: slideUp 0.4s 0.2s ease both;
+    }
+    .combined-tagline { font-size: 16px; opacity: 0.6; font-style: italic; margin-bottom: 28px; animation: slideUp 0.4s 0.3s ease both; }
+    @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .profile-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 22px; padding: 24px; text-align: left;
+      width: 100%; max-width: 420px; margin-bottom: 16px;
+      animation: slideUp 0.4s 0.4s ease both;
+    }
+    .profile-card-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      opacity: 0.4; margin-bottom: 14px;
+    }
+    .profile-text { font-size: 15px; line-height: 1.75; opacity: 0.88; }
+
+    .strengths-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      width: 100%; max-width: 420px; margin-bottom: 16px;
+      animation: slideUp 0.4s 0.5s ease both;
+    }
+    .strength-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 14px 16px;
+    }
+    .strength-icon { font-size: 22px; margin-bottom: 8px; }
+    .strength-title { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+    .strength-desc { font-size: 12px; opacity: 0.55; line-height: 1.4; }
+
+    .careers-big-card {
+      width: 100%; max-width: 420px;
+      background: linear-gradient(135deg, #7B2FBE, #4338CA);
+      border-radius: 22px; padding: 24px; margin-bottom: 16px;
+      animation: slideUp 0.4s 0.6s ease both;
+    }
+    .careers-big-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; margin-bottom: 16px; }
+    .careers-big-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .career-chip { background: rgba(255,255,255,0.18); border-radius: 100px; padding: 8px 16px; font-size: 14px; font-weight: 700; }
+
+    .not-found-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 22px; padding: 32px; text-align: center; width: 100%; max-width: 420px;
+    }
+    .not-found-icon { font-size: 48px; margin-bottom: 16px; }
+    .not-found-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .not-found-text { font-size: 15px; opacity: 0.6; line-height: 1.6; margin-bottom: 20px; }
+
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+    /* email toast */
+    .email-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: rgba(20,20,40,0.92); backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 100px; padding: 14px 28px;
+      font-size: 14px; font-weight: 700; color: #fff;
+      white-space: nowrap; z-index: 1000;
+      animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both, toastOut 0.4s 5s ease forwards;
+    }
+    @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(20px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+    @keyframes toastOut { to { opacity:0; transform: translateX(-50%) translateY(10px); } }
+
+    /* email card at bottom of results */
+    .email-card {
+      width: 100%; max-width: 420px; margin-top: 16px;
+      background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 22px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+      animation: slideUp 0.4s 0.7s ease both;
+    }
+    .email-card-icon { font-size: 28px; flex-shrink: 0; }
+    .email-card-text { font-size: 13px; opacity: 0.5; margin-top: 2px; }
+    .email-card-title { font-size: 15px; font-weight: 800; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ENTRY -->
+<div id="s-entry">
+  <span class="entry-badge">🏆 All 4 Days Complete</span>
+  <span class="entry-icon">🌟</span>
+  <h1 class="entry-title">Your Creative Career Profile</h1>
+  <p class="entry-sub">Enter the same name from all four quizzes. We'll show your complete persona and email your results.</p>
+  <input class="entry-input" type="text" id="name-in" placeholder="Your first name" autocomplete="off" autocorrect="off">
+  <input class="entry-input" type="email" id="email-in" placeholder="Your email address" autocomplete="email" style="margin-top:-8px;">
+  <button class="btn" id="lookup-btn" onclick="lookupResults()">See my profile →</button>
+  <p class="error-msg" id="error-msg"></p>
+</div>
+
+<!-- LOADING -->
+<div id="s-loading" style="display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(150deg, #1E0A3C 0%, #0F0A1E 100%);">
+  <div class="spinner"></div>
+  <p class="loading-text">Finding your creative profile...</p>
+</div>
+
+<!-- RESULTS -->
+<div id="s-results" style="display:none; flex-direction:column; align-items:center; padding: 40px 20px 80px; min-height:100vh; background: linear-gradient(150deg, #1E0A3C 0%, #0F0A1E 100%);">
+  <div class="results-header">
+    <p class="results-greeting">The full picture for</p>
+    <h1 class="results-name" id="r-name"></h1>
+    <p class="results-sub">Your 4-day creative career profile</p>
+  </div>
+  <div class="days-row" id="days-row"></div>
+  <div class="combined-section">
+    <span class="combined-label">✦ Your Complete Persona</span>
+    <div class="combined-icon" id="combined-icon"></div>
+    <h2 class="combined-persona-name" id="combined-name"></h2>
+    <p class="combined-tagline" id="combined-tagline"></p>
+  </div>
+  <div class="profile-card">
+    <p class="profile-card-label">About you</p>
+    <p class="profile-text" id="combined-desc"></p>
+  </div>
+  <div class="strengths-grid" id="strengths-grid"></div>
+  <div class="careers-big-card">
+    <p class="careers-big-label">🚀 Career paths to explore</p>
+    <div class="careers-big-chips" id="combined-careers"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// AIRTABLE CONFIG
+// ─────────────────────────────────────────────
+const AT_TOKEN = 'YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN';
+const AT_BASE  = 'YOUR_BASE_ID';
+const AT_TABLE = 'Quiz Results';
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// EMAILJS CONFIG  — send results to students
+// ─────────────────────────────────────────────
+// Setup steps (free, 200 emails/month):
+//  1. Create account at https://emailjs.com
+//  2. Add an Email Service (connect your Gmail or any SMTP)
+//  3. Create an Email Template with these variables:
+//       {{to_name}}       — student's first name
+//       {{to_email}}      — student's email address
+//       {{persona_name}}  — e.g. "Creative Director"
+//       {{persona_tagline}} — e.g. "You hold the vision and make it real"
+//       {{persona_desc}}  — the paragraph about them
+//       {{day1}} {{day2}} {{day3}} {{day4}} — each day's persona
+//       {{careers}}       — comma-separated career paths
+//  4. Paste your IDs below:
+const EJ_SERVICE  = 'YOUR_EMAILJS_SERVICE_ID';   // e.g. 'service_abc123'
+const EJ_TEMPLATE = 'YOUR_EMAILJS_TEMPLATE_ID';  // e.g. 'template_xyz789'
+const EJ_KEY      = 'YOUR_EMAILJS_PUBLIC_KEY';   // found in Account → API Keys
+// ─────────────────────────────────────────────
+
+if (!EJ_KEY.startsWith('YOUR_')) emailjs.init({ publicKey: EJ_KEY });
+
+let studentEmail = '';
+
+// ── PERSONA DATA (mini icons for day row) ──
+const PERSONA_MINI = {
+  // Q1
+  'The Artist':     { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#FF6347" opacity="0.2"/><ellipse cx="23" cy="27" rx="11" ry="8" fill="#FF6347"/><circle cx="18" cy="22" r="2.5" fill="#fff" opacity="0.9"/><circle cx="28" cy="22" r="2.5" fill="#fff" opacity="0.9"/><circle cx="23" cy="28" r="2.5" fill="#fff" opacity="0.9"/></svg>`, color: '#FF6347' },
+  'The Builder':    { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#059669" opacity="0.2"/><g transform="translate(24,22)"><circle r="9" fill="#059669"/><rect x="-2" y="-13" width="4" height="5" rx="1.5" fill="#059669"/><rect x="-2" y="8" width="4" height="5" rx="1.5" fill="#059669"/><rect x="-13" y="-2" width="5" height="4" rx="1.5" fill="#059669"/><rect x="8" y="-2" width="5" height="4" rx="1.5" fill="#059669"/></g><path d="M15 34 L20 27" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="36" r="3.5" fill="#fff" opacity="0.9"/></svg>`, color: '#059669' },
+  'The Storyteller':{ icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#7C3AED" opacity="0.2"/><rect x="12" y="15" width="11" height="18" rx="2.5" fill="#7C3AED"/><rect x="25" y="15" width="11" height="18" rx="2.5" fill="#5B21B6"/><rect x="14" y="19" width="7" height="1.5" rx="1" fill="#fff" opacity="0.7"/><rect x="14" y="22" width="6" height="1.5" rx="1" fill="#fff" opacity="0.7"/><rect x="14" y="25" width="7" height="1.5" rx="1" fill="#fff" opacity="0.7"/><rect x="27" y="19" width="7" height="1.5" rx="1" fill="#fff" opacity="0.7"/><rect x="27" y="22" width="6" height="1.5" rx="1" fill="#fff" opacity="0.7"/></svg>`, color: '#7C3AED' },
+  'The Organizer':  { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#D97706" opacity="0.2"/><rect x="13" y="14" width="22" height="22" rx="3" fill="#D97706"/><rect x="13" y="14" width="22" height="6" rx="3" fill="#B45309"/><rect x="17" y="23" width="4" height="4" rx="1" fill="#fff" opacity="0.9"/><path d="M17.5 25 L19 26.5 L21 23.5" stroke="#D97706" stroke-width="1.2" fill="none" stroke-linecap="round"/><rect x="23" y="23" width="9" height="4" rx="1.5" fill="rgba(255,255,255,0.4)"/><rect x="17" y="29" width="4" height="4" rx="1" fill="#fff" opacity="0.9"/><path d="M17.5 31 L19 32.5 L21 29.5" stroke="#D97706" stroke-width="1.2" fill="none" stroke-linecap="round"/><rect x="23" y="29" width="7" height="4" rx="1.5" fill="rgba(255,255,255,0.4)"/></svg>`, color: '#D97706' },
+  // Q2
+  'The Collaborator':{ icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#0D9488" opacity="0.2"/><circle cx="18" cy="19" r="7" fill="#0D9488"/><circle cx="30" cy="19" r="7" fill="#0D9488" opacity="0.75"/><circle cx="24" cy="31" r="7" fill="#0D9488" opacity="0.6"/><line x1="23" y1="23" x2="19" y2="27" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="25" y1="23" x2="29" y2="27" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/></svg>`, color: '#0D9488' },
+  'The Visionary':  { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#0D9488" opacity="0.2"/><circle cx="24" cy="22" r="10" fill="#0D9488"/><circle cx="24" cy="22" r="6" fill="rgba(255,255,255,0.2)"/><circle cx="24" cy="22" r="3" fill="#fff" opacity="0.9"/><line x1="24" y1="10" x2="24" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><line x1="33" y1="13" x2="36" y2="10" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><line x1="36" y1="22" x2="40" y2="22" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg>`, color: '#0D9488' },
+  'The Director':   { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#0D9488" opacity="0.2"/><rect x="12" y="17" width="24" height="18" rx="3" fill="#0D9488"/><polygon points="12,17 8,13 8,35 12,35" fill="#065F55" opacity="0.8"/><rect x="14" y="20" width="20" height="12" rx="2" fill="rgba(255,255,255,0.15)"/><circle cx="24" cy="26" r="4" fill="#fff" opacity="0.9"/></svg>`, color: '#0D9488' },
+  'The Catalyst':   { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#0D9488" opacity="0.2"/><polygon points="24,8 28,19 40,19 31,27 34,38 24,31 14,38 17,27 8,19 20,19" fill="#0D9488"/><circle cx="24" cy="24" r="6" fill="rgba(255,255,255,0.3)"/><circle cx="24" cy="24" r="2.5" fill="#fff" opacity="0.9"/></svg>`, color: '#0D9488' },
+  // Q3
+  'The Innovator':  { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#4338CA" opacity="0.2"/><circle cx="24" cy="20" r="10" fill="#4338CA"/><path d="M21 30 L27 30 L26 36 L22 36 Z" fill="#4338CA" opacity="0.7"/><rect x="22" y="36" width="4" height="2" rx="1" fill="rgba(255,255,255,0.5)"/><circle cx="24" cy="20" r="4" fill="rgba(255,255,255,0.3)"/><circle cx="24" cy="20" r="2" fill="#fff" opacity="0.9"/></svg>`, color: '#4338CA' },
+  'The Connector':  { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#4338CA" opacity="0.2"/><circle cx="15" cy="16" r="6" fill="#4338CA"/><circle cx="33" cy="16" r="6" fill="#4338CA" opacity="0.85"/><circle cx="15" cy="34" r="6" fill="#4338CA" opacity="0.7"/><circle cx="33" cy="34" r="6" fill="#4338CA" opacity="0.7"/><line x1="21" y1="16" x2="27" y2="16" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="15" y1="22" x2="15" y2="28" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="33" y1="22" x2="33" y2="28" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><line x1="21" y1="34" x2="27" y2="34" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><circle cx="24" cy="25" r="4" fill="#4338CA"/><circle cx="24" cy="25" r="2" fill="#fff" opacity="0.9"/></svg>`, color: '#4338CA' },
+  'The Craftsperson':{ icon:`<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#4338CA" opacity="0.2"/><path d="M30 13 L36 19 L21 34 L13 34 L13 26 Z" fill="#4338CA"/><path d="M30 13 L36 19 L33 22 L27 16 Z" fill="rgba(255,255,255,0.25)"/></svg>`, color: '#4338CA' },
+  'The Communicator':{ icon:`<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#4338CA" opacity="0.2"/><path d="M10 17 Q10 12 15 12 L38 12 Q43 12 43 17 L43 29 Q43 34 38 34 L28 34 L19 41 L21 34 L15 34 Q10 34 10 29 Z" fill="#4338CA"/><rect x="16" y="19" width="18" height="2" rx="1" fill="#fff" opacity="0.7"/><rect x="16" y="23.5" width="14" height="2" rx="1" fill="#fff" opacity="0.7"/><rect x="16" y="28" width="16" height="2" rx="1" fill="#fff" opacity="0.7"/></svg>`, color: '#4338CA' },
+  // Q4
+  'The Strategist': { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#BE185D" opacity="0.2"/><rect x="8" y="8" width="32" height="32" rx="3" fill="#BE185D" opacity="0.15" stroke="#BE185D" stroke-width="1.5"/><circle cx="14" cy="14" r="5" fill="#BE185D"/><circle cx="24" cy="24" r="6" fill="#BE185D"/><circle cx="34" cy="34" r="5" fill="#BE185D"/><circle cx="14" cy="14" r="2" fill="#fff" opacity="0.9"/><circle cx="24" cy="24" r="2.5" fill="#fff" opacity="0.9"/><circle cx="34" cy="34" r="2" fill="#fff" opacity="0.9"/><line x1="17" y1="17" x2="21" y2="21" stroke="#fff" stroke-width="1.2" opacity="0.4"/><line x1="27" y1="27" x2="31" y2="31" stroke="#fff" stroke-width="1.2" opacity="0.4"/></svg>`, color: '#BE185D' },
+  'The Maker':      { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#BE185D" opacity="0.2"/><rect x="15" y="13" width="18" height="24" rx="3" fill="#BE185D"/><rect x="18" y="17" width="12" height="10" rx="2" fill="rgba(255,255,255,0.2)"/><line x1="18" y1="30" x2="30" y2="30" stroke="#fff" stroke-width="1.5" opacity="0.5"/><line x1="18" y1="33" x2="27" y2="33" stroke="#fff" stroke-width="1.5" opacity="0.5"/></svg>`, color: '#BE185D' },
+  'The Performer':  { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#BE185D" opacity="0.2"/><ellipse cx="24" cy="35" rx="15" ry="4" fill="#BE185D" opacity="0.3"/><ellipse cx="24" cy="20" rx="10" ry="12" fill="#BE185D"/><ellipse cx="24" cy="20" rx="6" ry="9" fill="rgba(255,255,255,0.15)"/></svg>`, color: '#BE185D' },
+  'The Dreamer':    { icon: `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="22" fill="#BE185D" opacity="0.2"/><path d="M24 10 C24 10 30 16 31 22 C32 28 28 31 24 32 C20 31 16 28 17 22 C18 16 24 10 24 10 Z" fill="#BE185D"/><circle cx="22" cy="18" r="2" fill="#fff" opacity="0.7"/><circle cx="28" cy="21" r="1.5" fill="#fff" opacity="0.5"/><circle cx="12" cy="16" r="2" fill="#BE185D" opacity="0.6"/><circle cx="37" cy="17" r="2.5" fill="#BE185D" opacity="0.5"/><circle cx="33" cy="11" r="1.5" fill="#BE185D" opacity="0.4"/></svg>`, color: '#BE185D' },
+};
+
+// ── COMBINED PERSONAS (synthesis) ──
+// Each quiz persona maps to trait axes: visual | maker | narrative | strategic | social | innovation
+const TRAIT_MAP = {
+  // Q1
+  'The Artist':      { visual:2, maker:0, narrative:0, strategic:0, social:0, innovation:0 },
+  'The Builder':     { visual:0, maker:2, narrative:0, strategic:0, social:0, innovation:0 },
+  'The Storyteller': { visual:0, maker:0, narrative:2, strategic:0, social:0, innovation:0 },
+  'The Organizer':   { visual:0, maker:0, narrative:0, strategic:2, social:0, innovation:0 },
+  // Q2
+  'The Collaborator':{ visual:0, maker:0, narrative:0, strategic:0, social:2, innovation:0 },
+  'The Visionary':   { visual:0, maker:0, narrative:0, strategic:0, social:0, innovation:2 },
+  'The Director':    { visual:0, maker:0, narrative:0, strategic:2, social:0, innovation:0 },
+  'The Catalyst':    { visual:0, maker:0, narrative:0, strategic:0, social:0, innovation:2 },
+  // Q3
+  'The Innovator':   { visual:0, maker:0, narrative:0, strategic:0, social:0, innovation:2 },
+  'The Connector':   { visual:0, maker:0, narrative:0, strategic:0, social:2, innovation:0 },
+  'The Craftsperson':{ visual:1, maker:1, narrative:0, strategic:0, social:0, innovation:0 },
+  'The Communicator':{ visual:0, maker:0, narrative:2, strategic:0, social:0, innovation:0 },
+  // Q4
+  'The Strategist':  { visual:0, maker:0, narrative:0, strategic:2, social:0, innovation:0 },
+  'The Maker':       { visual:0, maker:2, narrative:0, strategic:0, social:0, innovation:0 },
+  'The Performer':   { visual:0, maker:0, narrative:2, strategic:0, social:0, innovation:0 },
+  'The Dreamer':     { visual:2, maker:0, narrative:0, strategic:0, social:0, innovation:0 },
+};
+
+const COMBINED_PERSONAS = [
+  {
+    id: 'creative-director',
+    name: 'The Creative Director',
+    tagline: 'You hold the vision and make it real',
+    match: t => t.strategic >= 3 && t.visual >= 2,
+    desc: "You have the rarest combination in the creative world: genuine creative vision paired with the ability to execute it at scale. You don't just see what something could be — you bring the strategy, the leadership, and the taste to actually get it there. Creative Directors shape entire industries, and you have every ingredient to become one.",
+    strengths: [
+      { icon: '🎯', title: 'Creative Vision', desc: 'You see what the work can become before it exists' },
+      { icon: '♟️', title: 'Strategic Thinking', desc: 'You can plan three moves ahead in any creative challenge' },
+      { icon: '🌟', title: 'Leadership Presence', desc: 'People trust your judgment and follow your direction' },
+      { icon: '🎨', title: 'Aesthetic Intelligence', desc: 'Your eye for quality raises the bar on everything you touch' },
+    ],
+    careers: ['Creative Director','Art Director','Brand Director','Executive Creative Director','Creative Agency Founder','Head of Design'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cdg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#4338CA"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#cdg)" opacity="0.15"/><circle cx="80" cy="80" r="65" fill="url(#cdg)" opacity="0.1"/><circle cx="80" cy="55" r="28" fill="url(#cdg)"/><circle cx="80" cy="55" r="16" fill="rgba(255,255,255,0.2)"/><circle cx="80" cy="55" r="7" fill="#fff" opacity="0.9"/><rect x="52" y="92" width="56" height="40" rx="6" fill="url(#cdg)" opacity="0.8"/><rect x="57" y="98" width="46" height="28" rx="3" fill="rgba(255,255,255,0.12)"/><line x1="58" y1="107" x2="82" y2="107" stroke="#fff" stroke-width="2" opacity="0.5"/><line x1="58" y1="112" x2="78" y2="112" stroke="#fff" stroke-width="2" opacity="0.5"/><line x1="58" y1="117" x2="80" y2="117" stroke="#fff" stroke-width="2" opacity="0.5"/></svg>`
+  },
+  {
+    id: 'brand-storyteller',
+    name: 'The Brand Storyteller',
+    tagline: 'You make people feel things about ideas',
+    match: t => t.narrative >= 3 && t.strategic >= 2,
+    desc: "You understand that the world runs on stories — and you know how to tell them in a way that moves people to feel, think, and act differently. You don't just communicate ideas, you give them a soul. Your work doesn't just land; it sticks. Brands, media companies, and cultural movements all need someone exactly like you.",
+    strengths: [
+      { icon: '✍️', title: 'Narrative Instinct', desc: 'You find the story in everything — even the stuff nobody else noticed' },
+      { icon: '📣', title: 'Audience Empathy', desc: 'You know exactly who you\'re talking to and what they need to hear' },
+      { icon: '♟️', title: 'Strategic Message', desc: 'Your stories don\'t just feel good — they\'re built to do something' },
+      { icon: '🎯', title: 'Persuasive Power', desc: 'When you commit to a message, people listen' },
+    ],
+    careers: ['Creative Strategist','Brand Storyteller','Content Director','Creative Copywriter','Campaign Director','Brand Journalist'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bsg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#bsg)" opacity="0.15"/><path d="M30 58 Q30 44 44 44 L124 44 Q138 44 138 58 L138 98 Q138 112 124 112 L96 112 L72 132 L78 112 L44 112 Q30 112 30 98 Z" fill="url(#bsg)"/><rect x="46" y="62" width="68" height="5" rx="2.5" fill="#fff" opacity="0.7"/><rect x="46" y="73" width="54" height="5" rx="2.5" fill="#fff" opacity="0.7"/><rect x="46" y="84" width="62" height="5" rx="2.5" fill="#fff" opacity="0.7"/><rect x="46" y="95" width="40" height="5" rx="2.5" fill="#fff" opacity="0.5"/></svg>`
+  },
+  {
+    id: 'product-designer',
+    name: 'The Product Designer',
+    tagline: 'You create things that are beautiful and real',
+    match: t => t.maker >= 3 && t.visual >= 2,
+    desc: "You sit at the perfect intersection of craft, beauty, and function. You're not satisfied with ideas that stay on paper, and you're not satisfied with things that work but aren't beautiful. You want both — and you have the skill and sensibility to achieve both. Product and experience designers shape how billions of people interact with the world.",
+    strengths: [
+      { icon: '🎨', title: 'Design Sensibility', desc: 'You have an instinctive feel for what looks and feels right' },
+      { icon: '🛠️', title: 'Making Ability', desc: 'You can actually build the thing you\'ve imagined' },
+      { icon: '✂️', title: 'Craft & Quality', desc: 'You sweat the details that most people never even notice' },
+      { icon: '👁️', title: 'User Intuition', desc: 'You feel what an experience needs before you test it' },
+    ],
+    careers: ['Product Designer','UX/UI Designer','Industrial Designer','Design Engineer','Experience Designer','Creative Technologist'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="pdg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#34D399"/><stop offset="100%" stop-color="#065F46"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#pdg)" opacity="0.15"/><rect x="48" y="40" width="64" height="80" rx="8" fill="url(#pdg)"/><rect x="56" y="52" width="48" height="36" rx="4" fill="rgba(255,255,255,0.2)"/><path d="M64 70 L72 62 L80 68 L92 56 L100 64" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/><rect x="56" y="96" width="48" height="5" rx="2.5" fill="rgba(255,255,255,0.4)"/><rect x="56" y="106" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.3)"/></svg>`
+  },
+  {
+    id: 'creative-technologist',
+    name: 'The Creative Technologist',
+    tagline: 'You build at the edge of art and code',
+    match: t => t.maker >= 3 && t.innovation >= 2,
+    desc: "You live where most people can't — at the intersection of deep technical ability and genuine creative instinct. You're not just a builder, and you're not just a creative: you're someone who uses technology as a creative medium. The most exciting things being made in the world right now are being made by people exactly like you.",
+    strengths: [
+      { icon: '💡', title: 'Technical Creativity', desc: 'You treat code and technology as raw creative material' },
+      { icon: '🛠️', title: 'Build Ability', desc: 'You can actually make the wild things you imagine' },
+      { icon: '🔮', title: 'Innovation Drive', desc: 'You\'re always pushing toward what doesn\'t exist yet' },
+      { icon: '🧪', title: 'Experimental Mindset', desc: 'You learn by building and breaking things, not by reading about them' },
+    ],
+    careers: ['Creative Technologist','Creative Engineer','Interactive Designer','AI Artist','Technical Director','Digital Experience Designer'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ctg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0E7490"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#ctg)" opacity="0.15"/><g transform="translate(80,75)"><circle r="26" fill="url(#ctg)"/><circle r="14" fill="rgba(255,255,255,0.2)"/><rect x="-5" y="-38" width="10" height="14" rx="4" fill="url(#ctg)"/><rect x="-5" y="24" width="10" height="14" rx="4" fill="url(#ctg)"/><rect x="-38" y="-5" width="14" height="10" rx="4" fill="url(#ctg)"/><rect x="24" y="-5" width="14" height="10" rx="4" fill="url(#ctg)"/><rect x="-5" y="-38" width="10" height="14" rx="4" fill="url(#ctg)" transform="rotate(45)"/><rect x="-5" y="24" width="10" height="14" rx="4" fill="url(#ctg)" transform="rotate(45)"/></g><path d="M60 105 L72 82" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.7"/><circle cx="56" cy="110" r="10" fill="#fff" opacity="0.85"/><circle cx="56" cy="110" r="5" fill="#0E7490"/></svg>`
+  },
+  {
+    id: 'creative-entrepreneur',
+    name: 'The Creative Entrepreneur',
+    tagline: 'You build something from nothing',
+    match: t => t.innovation >= 3 && t.strategic >= 2,
+    desc: "You have the combination of big-idea thinking and executional drive that it takes to actually start something. You don't just imagine what a better version of the world looks like — you figure out how to build it, and then you go build it. The creative economy needs more people willing to start the thing rather than wait for it.",
+    strengths: [
+      { icon: '🚀', title: 'Startup Energy', desc: 'You turn vague ideas into real things faster than anyone' },
+      { icon: '💡', title: 'Original Thinking', desc: 'Your ideas genuinely haven\'t been done before' },
+      { icon: '♟️', title: 'Strategic Drive', desc: 'You can hold a vision AND figure out how to get there' },
+      { icon: '🔥', title: 'Creative Momentum', desc: 'You inspire people to believe in ideas that don\'t exist yet' },
+    ],
+    careers: ['Creative Entrepreneur','Studio Founder','Creative Startup Founder','Innovation Designer','Brand Builder','Creative Director (Founder)'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ceg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#ceg)" opacity="0.15"/><path d="M80 25 L92 60 L130 60 L100 80 L112 115 L80 96 L48 115 L60 80 L30 60 L68 60 Z" fill="none" stroke="url(#ceg)" stroke-width="3" opacity="0.4"/><path d="M80 35 L89 62 L118 62 L95 78 L104 105 L80 90 L56 105 L65 78 L42 62 L71 62 Z" fill="url(#ceg)"/><circle cx="80" cy="72" r="14" fill="rgba(255,255,255,0.25)"/><circle cx="80" cy="72" r="6" fill="#fff" opacity="0.9"/></svg>`
+  },
+  {
+    id: 'experience-designer',
+    name: 'The Experience Designer',
+    tagline: 'You create moments that stay with people',
+    match: t => t.social >= 3 && t.visual >= 2,
+    desc: "You understand that the best design isn't about objects or screens — it's about how people feel when they're inside something you've created. You combine deep empathy for people with genuine aesthetic sensibility, which means you can create experiences that are both beautiful and genuinely meaningful to the people in them.",
+    strengths: [
+      { icon: '❤️', title: 'Human Empathy', desc: 'You deeply understand how people think, feel, and move through the world' },
+      { icon: '🎨', title: 'Aesthetic Sensibility', desc: 'You know what beauty feels like from the inside' },
+      { icon: '🌐', title: 'Systems Thinking', desc: 'You design the whole experience, not just individual moments' },
+      { icon: '🤝', title: 'Collaborative Spirit', desc: 'You bring out the best in everyone around you' },
+    ],
+    careers: ['Experience Designer','Service Designer','Design Researcher','Creative Director','Cultural Experience Producer','Brand Experience Lead'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="edg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F9A8D4"/><stop offset="100%" stop-color="#BE185D"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#edg)" opacity="0.15"/><circle cx="56" cy="60" r="20" fill="url(#edg)"/><circle cx="104" cy="60" r="20" fill="url(#edg)" opacity="0.8"/><circle cx="80" cy="100" r="20" fill="url(#edg)" opacity="0.7"/><circle cx="56" cy="60" r="10" fill="rgba(255,255,255,0.2)"/><circle cx="104" cy="60" r="10" fill="rgba(255,255,255,0.2)"/><circle cx="80" cy="100" r="10" fill="rgba(255,255,255,0.2)"/><line x1="68" y1="68" x2="92" y2="68" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/><line x1="64" y1="74" x2="72" y2="86" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/><line x1="96" y1="74" x2="88" y2="86" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/></svg>`
+  },
+  {
+    id: 'creative-producer',
+    name: 'The Creative Producer',
+    tagline: 'You\'re the reason great work ships',
+    match: t => t.strategic >= 3 && t.social >= 2,
+    desc: "You're the rare creative who can hold a vision, rally a team, and actually get the work done — on time and at the right quality. You understand creative people deeply, which means you can lead them without crushing what makes them great. The best creative work in the world happens because someone like you made it possible.",
+    strengths: [
+      { icon: '📋', title: 'Executional Mastery', desc: 'You can take any creative challenge from chaos to delivered' },
+      { icon: '🤝', title: 'Team Leadership', desc: 'You bring out the best in creative people' },
+      { icon: '♟️', title: 'Strategic Clarity', desc: 'You always know what\'s next and why it matters' },
+      { icon: '🎯', title: 'Creative Taste', desc: 'You can judge quality — which is rarer than it looks' },
+    ],
+    careers: ['Creative Producer','Executive Producer','Head of Production','Creative Project Director','Creative Operations Lead','Studio Manager'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cpg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs><circle cx="80" cy="80" r="78" fill="url(#cpg)" opacity="0.15"/><rect x="44" y="44" width="72" height="72" rx="9" fill="url(#cpg)"/><rect x="44" y="44" width="72" height="18" rx="9" fill="#B45309" opacity="0.8"/><rect x="64" y="34" width="32" height="18" rx="6" fill="#92400E"/><rect x="57" y="70" width="12" height="12" rx="3" fill="#fff" opacity="0.9"/><path d="M58 76 L62 80 L68 72" stroke="#D97706" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="73" y="70" width="30" height="12" rx="4" fill="rgba(255,255,255,0.35)"/><rect x="57" y="86" width="12" height="12" rx="3" fill="#fff" opacity="0.9"/><path d="M58 92 L62 96 L68 88" stroke="#D97706" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="73" y="86" width="24" height="12" rx="4" fill="rgba(255,255,255,0.35)"/></svg>`
+  },
+  {
+    id: 'content-creator',
+    name: 'The Content Creator',
+    tagline: 'You make the world stop and pay attention',
+    match: t => t.narrative >= 4,
+    desc: "You have a natural command of audience attention and a seemingly effortless ability to create things people want to engage with. Whether it's video, writing, audio, or something no one has invented yet — you find your voice in it quickly, and you find your audience even faster. The creator economy is only going to grow, and you were built for it.",
+    strengths: [
+      { icon: '🎤', title: 'Audience Connection', desc: 'You build communities of people who genuinely care about what you make' },
+      { icon: '📖', title: 'Storytelling Range', desc: 'You can tell compelling stories across multiple formats and platforms' },
+      { icon: '⚡', title: 'Creative Output', desc: 'You produce consistently without losing quality or freshness' },
+      { icon: '🌍', title: 'Cultural Antenna', desc: 'You know what people care about before it trends' },
+    ],
+    careers: ['Content Creator','Podcast Host','Video Producer','Creative Journalist','Brand Content Director','Social Media Creative Director'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ccg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FCA5A5"/><stop offset="100%" stop-color="#DC2626"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#ccg)" opacity="0.15"/><ellipse cx="80" cy="115" rx="46" ry="10" fill="url(#ccg)" opacity="0.3"/><rect x="62" y="95" width="36" height="22" rx="4" fill="url(#ccg)" opacity="0.7"/><ellipse cx="80" cy="62" rx="30" ry="38" fill="url(#ccg)"/><ellipse cx="80" cy="62" rx="18" ry="28" fill="rgba(255,255,255,0.2)"/><circle cx="80" cy="44" r="7" fill="#fff" opacity="0.6"/><line x1="62" y1="98" x2="56" y2="115" stroke="url(#ccg)" stroke-width="4" stroke-linecap="round"/><line x1="98" y1="98" x2="104" y2="115" stroke="url(#ccg)" stroke-width="4" stroke-linecap="round"/></svg>`
+  },
+  {
+    id: 'innovation-designer',
+    name: 'The Innovation Designer',
+    tagline: 'You design things that shouldn\'t exist yet',
+    match: t => t.innovation >= 4,
+    desc: "You think further ahead than almost anyone in a room, and you have the creative language to bring people with you. You're not just coming up with new ideas — you're designing new systems, new possibilities, new ways of thinking about familiar problems. You belong at the forefront of whatever comes next in design and culture.",
+    strengths: [
+      { icon: '🔭', title: 'Futures Thinking', desc: 'You see where things are going before they get there' },
+      { icon: '💡', title: 'Concept Generation', desc: 'You generate original ideas at a pace most people can\'t match' },
+      { icon: '🌐', title: 'Pattern Recognition', desc: 'You spot the connections that lead to genuinely new territory' },
+      { icon: '🚀', title: 'Creative Courage', desc: 'You pitch the big thing and back it up' },
+    ],
+    careers: ['Innovation Designer','Speculative Designer','Creative Futurist','Design Researcher','Concept Developer','Creative Director (R&D)'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="idg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#A5B4FC"/><stop offset="100%" stop-color="#312E81"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#idg)" opacity="0.15"/><circle cx="80" cy="66" r="30" fill="url(#idg)"/><path d="M68 96 L92 96 L88 118 L72 118 Z" fill="url(#idg)" opacity="0.8"/><rect x="70" y="118" width="20" height="6" rx="3" fill="rgba(255,255,255,0.6)"/><rect x="73" y="124" width="14" height="6" rx="3" fill="rgba(255,255,255,0.4)"/><circle cx="80" cy="66" r="14" fill="rgba(255,255,255,0.25)"/><circle cx="80" cy="66" r="6" fill="#fff" opacity="0.9"/><line x1="80" y1="30" x2="80" y2="20" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="104" y1="38" x2="112" y2="30" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="112" y1="66" x2="122" y2="66" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="56" y1="38" x2="48" y2="30" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="48" y1="66" x2="38" y2="66" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.8"/></svg>`
+  },
+  {
+    id: 'multidisciplinary-creative',
+    name: 'The Multidisciplinary Creative',
+    tagline: 'You refuse to be just one thing',
+    match: () => true, // fallback
+    desc: "Your creative profile spans multiple disciplines and doesn't fit into a single category — and that's genuinely your superpower. The most interesting creative careers being built right now belong to people who bring together skills and perspectives that usually don't sit in the same room. You're exactly that kind of person.",
+    strengths: [
+      { icon: '🌀', title: 'Range', desc: 'You can move between creative modes in ways specialists can\'t' },
+      { icon: '🔗', title: 'Bridge-Building', desc: 'You connect worlds that don\'t usually talk to each other' },
+      { icon: '🧩', title: 'Adaptability', desc: 'Any creative challenge is workable because you have more tools' },
+      { icon: '🌟', title: 'Unique Perspective', desc: 'Your cross-disciplinary view produces ideas nobody else could have' },
+    ],
+    careers: ['Creative Generalist','Creative Director','Multidisciplinary Designer','Creative Entrepreneur','Brand Creative','Cultural Producer'],
+    icon: `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="mcg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F0ABFC"/><stop offset="50%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#86EFAC"/></radialGradient></defs><circle cx="80" cy="80" r="78" fill="url(#mcg)" opacity="0.2"/><circle cx="80" cy="80" r="50" fill="url(#mcg)" opacity="0.15" stroke="url(#mcg)" stroke-width="2"/><circle cx="80" cy="55" r="14" fill="url(#mcg)" opacity="0.8"/><circle cx="58" cy="88" r="14" fill="url(#mcg)" opacity="0.8"/><circle cx="102" cy="88" r="14" fill="url(#mcg)" opacity="0.8"/><circle cx="80" cy="55" r="6" fill="#fff" opacity="0.9"/><circle cx="58" cy="88" r="6" fill="#fff" opacity="0.9"/><circle cx="102" cy="88" r="6" fill="#fff" opacity="0.9"/><circle cx="80" cy="80" r="8" fill="url(#mcg)"/><circle cx="80" cy="80" r="3" fill="#fff" opacity="0.9"/></svg>`
+  }
+];
+
+function getTraits(personaNames) {
+  const totals = { visual:0, maker:0, narrative:0, strategic:0, social:0, innovation:0 };
+  personaNames.forEach(n => {
+    const t = TRAIT_MAP[n];
+    if (t) Object.keys(t).forEach(k => totals[k] += t[k]);
+  });
+  return totals;
+}
+
+function pickCombinedPersona(traits) {
+  for (const p of COMBINED_PERSONAS) {
+    if (p.match(traits)) return p;
+  }
+  return COMBINED_PERSONAS[COMBINED_PERSONAS.length - 1];
+}
+
+// ── MAIN FLOW ──
+async function lookupResults() {
+  const name = document.getElementById('name-in').value.trim();
+  if (!name) { document.getElementById('error-msg').textContent = 'Please enter your name first.'; return; }
+  studentEmail = document.getElementById('email-in').value.trim();
+
+  document.getElementById('s-entry').style.display = 'none';
+  document.getElementById('s-loading').style.display = 'flex';
+
+  try {
+    const records = await fetchAirtable(name);
+    if (!records || records.length === 0) {
+      showNotFound(name);
+      return;
+    }
+    renderResults(name, records);
+  } catch(e) {
+    document.getElementById('s-loading').style.display = 'none';
+    document.getElementById('s-entry').style.display = 'flex';
+    document.getElementById('error-msg').textContent = 'Something went wrong. Please try again.';
+    console.error(e);
+  }
+}
+
+async function fetchAirtable(name) {
+  if (!AT_TOKEN || AT_TOKEN.startsWith('YOUR_')) {
+    // Demo mode — return sample data
+    return [
+      { fields: { 'Quiz Number': 1, 'Persona Name': 'The Artist' } },
+      { fields: { 'Quiz Number': 2, 'Persona Name': 'The Visionary' } },
+      { fields: { 'Quiz Number': 3, 'Persona Name': 'The Innovator' } },
+      { fields: { 'Quiz Number': 4, 'Persona Name': 'The Dreamer' } },
+    ];
+  }
+  const formula = encodeURIComponent(`{Name}="${name}"`);
+  const url = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}?filterByFormula=${formula}&sort[0][field]=Quiz%20Number&sort[0][direction]=asc`;
+  const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AT_TOKEN}` } });
+  if (!res.ok) throw new Error(`Airtable error: ${res.status}`);
+  const data = await res.json();
+  return data.records || [];
+}
+
+function showNotFound(name) {
+  document.getElementById('s-loading').style.display = 'none';
+  const el = document.getElementById('s-results');
+  el.style.display = 'flex';
+  el.innerHTML = `
+    <div class="not-found-card">
+      <div class="not-found-icon">🔍</div>
+      <h2 class="not-found-title">No results found for "${name}"</h2>
+      <p class="not-found-text">Make sure you used the same name on all four quizzes. Even small differences (like "Alex" vs "Alexander") won't match.</p>
+      <button class="btn" onclick="location.reload()">Try again</button>
+    </div>`;
+}
+
+function renderResults(name, records) {
+  document.getElementById('s-loading').style.display = 'none';
+  const el = document.getElementById('s-results');
+  el.style.display = 'flex';
+
+  document.getElementById('r-name').textContent = name;
+
+  // Build day results map
+  const byDay = {};
+  records.forEach(r => { byDay[r.fields['Quiz Number']] = r.fields['Persona Name']; });
+
+  const DAY_LABELS = ['', 'What Kind of Creator?', 'How You Make Things Happen', 'What Fuels Your Fire', 'Your Creative Superpower'];
+
+  // Render day cards
+  const daysRow = document.getElementById('days-row');
+  daysRow.innerHTML = '';
+  for (let d = 1; d <= 4; d++) {
+    const pName = byDay[d] || '—';
+    const pm = PERSONA_MINI[pName] || { icon: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="rgba(255,255,255,0.1)"/></svg>', color: '#666' };
+    daysRow.innerHTML += `
+      <div class="day-card">
+        <p class="day-label">Day ${d}</p>
+        <div class="day-mini-icon">${pm.icon}</div>
+        <p class="day-persona" style="color:${pm.color}">${pName}</p>
+        <p class="day-quiz-name">${DAY_LABELS[d]}</p>
+      </div>`;
+  }
+
+  // Compute combined persona
+  const personaNames = [byDay[1], byDay[2], byDay[3], byDay[4]].filter(Boolean);
+  const traits = getTraits(personaNames);
+  const cp = pickCombinedPersona(traits);
+
+  document.getElementById('combined-icon').innerHTML = cp.icon;
+  document.getElementById('combined-name').textContent = cp.name;
+  document.getElementById('combined-tagline').textContent = `"${cp.tagline}"`;
+  document.getElementById('combined-desc').textContent = cp.desc;
+
+  const sg = document.getElementById('strengths-grid');
+  sg.innerHTML = cp.strengths.map(s => `
+    <div class="strength-card">
+      <div class="strength-icon">${s.icon}</div>
+      <div class="strength-title">${s.title}</div>
+      <div class="strength-desc">${s.desc}</div>
+    </div>`).join('');
+
+  document.getElementById('combined-careers').innerHTML = cp.careers.map(c => `<span class="career-chip">${c}</span>`).join('');
+
+  // Email card
+  el.insertAdjacentHTML('beforeend', `
+    <div class="email-card">
+      <div class="email-card-icon">✉️</div>
+      <div>
+        <div class="email-card-title">${studentEmail ? 'Results sent to ' + studentEmail : 'Results delivered'}</div>
+        <div class="email-card-text">Save or screenshot this page to keep your profile</div>
+      </div>
+    </div>`);
+
+  launchConfetti();
+
+  // Send email
+  if (studentEmail && !EJ_KEY.startsWith('YOUR_')) {
+    sendResultsEmail(name, studentEmail, cp, byDay);
+  }
+}
+
+async function sendResultsEmail(name, email, cp, byDay) {
+  try {
+    await emailjs.send(EJ_SERVICE, EJ_TEMPLATE, {
+      to_name:          name,
+      to_email:         email,
+      persona_name:     cp.name,
+      persona_tagline:  cp.tagline,
+      persona_desc:     cp.desc,
+      day1:             byDay[1] || '—',
+      day2:             byDay[2] || '—',
+      day3:             byDay[3] || '—',
+      day4:             byDay[4] || '—',
+      careers:          cp.careers.join(', '),
+    });
+    showToast('✉️ Results sent to ' + email);
+  } catch(err) {
+    console.error('EmailJS error:', err);
+    showToast('⚠️ Could not send email — save this page instead');
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'email-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 6000);
+}
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const colors = ['#C084FC','#818CF8','#67E8F9','#F9A8D4','#FCD34D','#86EFAC','#fff'];
+  const pieces = Array.from({length:120}, () => ({
+    x: Math.random()*canvas.width, y: -20, w: Math.random()*12+5, h: Math.random()*7+3,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    vx: (Math.random()-0.5)*5, vy: Math.random()*5+2,
+    rot: Math.random()*360, rv: (Math.random()-0.5)*10, life: 1
+  }));
+  let done = false;
+  function draw() {
+    if (done) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.rv; p.life -= 0.006;
+      ctx.save(); ctx.globalAlpha = Math.max(0, p.life);
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+    });
+    if (pieces.every(p => p.life <= 0)) done = true;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>

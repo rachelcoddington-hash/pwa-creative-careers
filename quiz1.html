@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Day 1 — What Kind of Creator Are You?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #7B2FBE;
+      --primary-dark: #4C1D95;
+      --accent: #FF6347;
+      --accent-dark: #C2410C;
+    }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--primary);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* ── SCREEN SYSTEM ── */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transform: translateX(100%);
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    .screen.active { transform: translateX(0); }
+    .screen.gone   { transform: translateX(-40%); }
+
+    /* ── INTRO ── */
+    #s-intro {
+      background: linear-gradient(150deg, #9B4DCA 0%, #4C1D95 100%);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 28px;
+      color: #fff;
+    }
+    .day-pill {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+    .intro-icon { font-size: 88px; margin-bottom: 24px; display: block; line-height: 1; }
+    .intro-title { font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 12px; }
+    .intro-sub { font-size: 15px; opacity: 0.65; margin-bottom: 52px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 18px 36px;
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 28px rgba(255,99,71,0.45);
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .btn:active { transform: scale(0.96); box-shadow: 0 2px 12px rgba(255,99,71,0.3); }
+
+    /* ── QUESTION ── */
+    #s-question {
+      background: #F5F0FF;
+      color: #1a1033;
+    }
+    .q-header {
+      background: linear-gradient(150deg, #9B4DCA 0%, #4C1D95 100%);
+      padding: 16px 20px 20px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .progress-track {
+      background: rgba(255,255,255,0.2);
+      border-radius: 100px;
+      height: 5px;
+      margin-bottom: 14px;
+    }
+    .progress-fill {
+      background: var(--accent);
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.4s ease;
+    }
+    .q-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.7;
+    }
+    .q-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 18px 32px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .q-text {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: #1a1033;
+      margin-bottom: 22px;
+    }
+    .answers { display: flex; flex-direction: column; gap: 11px; }
+    .a-card {
+      background: #fff;
+      border: 2.5px solid #E8DEFF;
+      border-radius: 18px;
+      padding: 15px 16px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .a-card:active { transform: scale(0.975); }
+    .a-card.selected {
+      border-color: var(--primary);
+      background: #F0E6FF;
+    }
+    .a-emoji { font-size: 26px; flex-shrink: 0; }
+    .a-text { font-size: 15px; font-weight: 600; line-height: 1.4; color: #1a1033; }
+    .check {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .a-card.selected .check { opacity: 1; transform: scale(1); }
+    .check svg { width: 13px; height: 13px; }
+
+    /* ── NAME ── */
+    #s-name {
+      background: linear-gradient(150deg, #9B4DCA 0%, #4C1D95 100%);
+      color: #fff;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 28px;
+    }
+    .name-eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; opacity: 0.6; margin-bottom: 16px;
+    }
+    .name-title { font-size: 30px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+    .name-sub { font-size: 15px; opacity: 0.65; margin-bottom: 36px; }
+    .name-input {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.35);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      outline: none;
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+    .name-input::placeholder { color: rgba(255,255,255,0.35); }
+    .name-input:focus { border-color: rgba(255,255,255,0.7); }
+
+    /* ── RESULT ── */
+    #s-result {
+      background: linear-gradient(150deg, #9B4DCA 0%, #4C1D95 100%);
+      color: #fff;
+      align-items: center;
+      text-align: center;
+      padding: 48px 24px 60px;
+    }
+    .result-pill {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .result-you { font-size: 15px; opacity: 0.6; margin-bottom: 6px; }
+    .persona-icon {
+      width: 150px; height: 150px;
+      margin: 8px auto 20px;
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .persona-name {
+      font-size: 38px; font-weight: 800; margin-bottom: 6px;
+      animation: slideUp 0.4s 0.15s ease both;
+    }
+    .persona-tagline {
+      font-size: 16px; opacity: 0.7; font-style: italic; margin-bottom: 28px;
+      animation: slideUp 0.4s 0.25s ease both;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(16px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .desc-card {
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 22px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 14px;
+      animation: slideUp 0.4s 0.35s ease both;
+      width: 100%;
+      max-width: 420px;
+    }
+    .desc-text { font-size: 15px; line-height: 1.7; opacity: 0.92; }
+    .careers-card {
+      background: var(--accent);
+      border-radius: 22px;
+      padding: 18px 20px;
+      text-align: left;
+      margin-bottom: 20px;
+      animation: slideUp 0.4s 0.45s ease both;
+      width: 100%;
+      max-width: 420px;
+    }
+    .careers-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; opacity: 0.75; margin-bottom: 12px;
+    }
+    .career-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      background: rgba(255,255,255,0.22);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .badge-note {
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.55;
+      animation: slideUp 0.4s 0.55s ease both;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ── CONFETTI ── */
+    #confetti-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="day-pill">Day 1 of 4</span>
+  <span class="intro-icon">🎨</span>
+  <h1 class="intro-title">What Kind of Creator Are You?</h1>
+  <p class="intro-sub">8 questions &nbsp;·&nbsp; ~7 minutes</p>
+  <button class="btn" onclick="startQuiz()">Let's find out →</button>
+</div>
+
+<!-- QUESTION -->
+<div id="s-question" class="screen">
+  <div class="q-header">
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <div class="q-meta">
+      <span>Day 1 · What Kind of Creator?</span>
+      <span id="q-counter">1 of 8</span>
+    </div>
+  </div>
+  <div class="q-body">
+    <div class="q-text" id="q-text"></div>
+    <div class="answers" id="answers"></div>
+  </div>
+</div>
+
+<!-- NAME -->
+<div id="s-name" class="screen">
+  <p class="name-eyebrow">Almost done</p>
+  <h2 class="name-title">Before we reveal<br>your persona...</h2>
+  <p class="name-sub">What's your name?</p>
+  <input class="name-input" type="text" id="name-in" placeholder="Your first name" autocomplete="off" autocorrect="off">
+  <button class="btn" onclick="submitReveal()">Reveal my persona →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="result-pill">Day 1 Result</span>
+  <p class="result-you">You are...</p>
+  <div class="persona-icon" id="p-icon"></div>
+  <h2 class="persona-name" id="p-name"></h2>
+  <p class="persona-tagline" id="p-tag"></p>
+  <div class="desc-card"><p class="desc-text" id="p-desc"></p></div>
+  <div class="careers-card">
+    <p class="careers-label">🚀 Careers to explore</p>
+    <div class="career-chips" id="p-careers"></div>
+  </div>
+  <div class="badge-note">
+    🎯 Pick up your <strong id="p-badge-name"></strong> badge at the table — it's yours to keep!
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// AIRTABLE CONFIG — fill these in before use
+// ─────────────────────────────────────────────
+const AT_TOKEN   = 'YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN';
+const AT_BASE    = 'YOUR_BASE_ID';
+const AT_TABLE   = 'Quiz Results';
+// ─────────────────────────────────────────────
+
+const Q = [
+  {
+    text: "When you have free time and no plans, you tend to...",
+    answers: [
+      { e:"🖊️", t:"Make something — sketch, paint, or shoot photos", p:'A' },
+      { e:"🔩", t:"Build or tinker — code, construct, or fix stuff", p:'B' },
+      { e:"🎞️", t:"Watch films, write, or get lost in a good story", p:'C' },
+      { e:"🗓️", t:"Organize your space, plan ahead, or make a list", p:'D' },
+    ]
+  },
+  {
+    text: "Your dream school project would be...",
+    answers: [
+      { e:"🖼️", t:"A visual art installation that makes people stop and stare", p:'A' },
+      { e:"🪛", t:"A prototype that solves a real-world problem", p:'B' },
+      { e:"🎙️", t:"A short film, podcast, or piece of writing with real impact", p:'C' },
+      { e:"💼", t:"A business pitch or event you plan and execute start to finish", p:'D' },
+    ]
+  },
+  {
+    text: "When you see a problem, your brain immediately asks...",
+    answers: [
+      { e:"🌈", t:"\"How could this look different — and way more beautiful?\"", p:'A' },
+      { e:"🔬", t:"\"What can I actually build to fix this?\"", p:'B' },
+      { e:"💭", t:"\"What's the story here, and who needs to hear it?\"", p:'C' },
+      { e:"🗺️", t:"\"What's the most efficient plan to tackle this?\"", p:'D' },
+    ]
+  },
+  {
+    text: "Your friends would say you're the one who...",
+    answers: [
+      { e:"🌸", t:"Always notices beauty and has the most interesting aesthetic", p:'A' },
+      { e:"🧩", t:"Can figure out how literally anything works", p:'B' },
+      { e:"🫂", t:"Tells the best stories and is a genuinely great listener", p:'C' },
+      { e:"🧭", t:"Shows up with a plan when everyone else is totally lost", p:'D' },
+    ]
+  },
+  {
+    text: "Your dream workspace looks like...",
+    answers: [
+      { e:"🌿", t:"A sunlit studio with art supplies and inspiration walls everywhere", p:'A' },
+      { e:"🔌", t:"A workshop or maker space packed with tools and prototypes", p:'B' },
+      { e:"☕", t:"A cozy nook with books, notebooks, and a great playlist", p:'C' },
+      { e:"🗃️", t:"A clean, organized desk with color-coded systems", p:'D' },
+    ]
+  },
+  {
+    text: "What feels most satisfying when you finish something?",
+    answers: [
+      { e:"🥹", t:"Someone says \"this is so beautiful — it made me feel something\"", p:'A' },
+      { e:"✅", t:"The thing you built actually works exactly as intended", p:'B' },
+      { e:"💡", t:"Your words or story genuinely changed how someone thinks", p:'C' },
+      { e:"🎖️", t:"A complex project came together without a single hitch", p:'D' },
+    ]
+  },
+  {
+    text: "When you're learning something new, you...",
+    answers: [
+      { e:"🎥", t:"Watch videos and look at examples, then make it your own", p:'A' },
+      { e:"🧪", t:"Take it apart, experiment, and figure it out hands-on", p:'B' },
+      { e:"📰", t:"Read everything about it and talk it through with someone", p:'C' },
+      { e:"📝", t:"Find a clear step-by-step process and follow it carefully", p:'D' },
+    ]
+  },
+  {
+    text: "Your ideal weekend looks like...",
+    answers: [
+      { e:"🏙️", t:"Making art, exploring museums, or shooting photos in the city", p:'A' },
+      { e:"🛖", t:"Building something from scratch — a site, a piece of furniture, anything", p:'B' },
+      { e:"🎭", t:"Writing, journaling, seeing plays, or deep in an incredible book", p:'C' },
+      { e:"🍽️", t:"Hosting something — a game night, a dinner, or a whole event", p:'D' },
+    ]
+  },
+];
+
+const PERSONAS = {
+  A: {
+    name: "The Artist",
+    tagline: "You see the world in color",
+    desc: "You experience life through aesthetics and emotion. You're drawn to beauty, expression, and the power of making people feel something. You don't just observe the world — you translate it into something that moves people.",
+    careers: ["Graphic Designer","Art Director","UX/UI Designer","Photographer","Illustrator","Creative Director"],
+    color: "#FF6347",
+    icon: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ag" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FF8C6B"/><stop offset="100%" stop-color="#FF4500"/></radialGradient></defs><circle cx="60" cy="60" r="58" fill="url(#ag)" opacity="0.18"/><ellipse cx="58" cy="65" rx="26" ry="20" fill="url(#ag)"/><circle cx="47" cy="57" r="5.5" fill="#fff" opacity="0.95"/><circle cx="70" cy="57" r="5.5" fill="#fff" opacity="0.95"/><circle cx="58" cy="70" r="5.5" fill="#fff" opacity="0.95"/><circle cx="44" cy="68" r="4.5" fill="#7C3AED"/><circle cx="72" cy="68" r="4.5" fill="#059669"/><circle cx="58" cy="58" r="4" fill="#F59E0B"/><ellipse cx="79" cy="77" rx="7" ry="5" fill="rgba(0,0,0,0.12)" transform="rotate(-20 79 77)"/><ellipse cx="79" cy="76" rx="6" ry="4" fill="none" stroke="#fff" stroke-width="2" transform="rotate(-20 79 76)"/><rect x="76" y="33" width="5" height="24" rx="2.5" fill="#fff" opacity="0.9" transform="rotate(-28 76 33)"/><rect x="76" y="54" width="5" height="9" rx="1.5" fill="#F59E0B" transform="rotate(-28 76 54)"/></svg>`
+  },
+  B: {
+    name: "The Builder",
+    tagline: "You make ideas real",
+    desc: "You're not satisfied with ideas that live only in someone's head. You're the one who actually makes things — functional, tangible, working things. Whether it's code, furniture, or product prototypes, you're happiest when you're building.",
+    careers: ["Product Designer","Software Engineer","Industrial Designer","Architect","Web Developer","Inventor"],
+    color: "#059669",
+    icon: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#34D399"/><stop offset="100%" stop-color="#047857"/></radialGradient></defs><circle cx="60" cy="60" r="58" fill="url(#bg)" opacity="0.18"/><g transform="translate(60,58)"><circle r="20" fill="url(#bg)"/><circle r="11" fill="rgba(255,255,255,0.2)"/><rect x="-4" y="-30" width="8" height="11" rx="3" fill="url(#bg)"/><rect x="-4" y="19" width="8" height="11" rx="3" fill="url(#bg)"/><rect x="-30" y="-4" width="11" height="8" rx="3" fill="url(#bg)"/><rect x="19" y="-4" width="11" height="8" rx="3" fill="url(#bg)"/><rect x="-4" y="-30" width="8" height="11" rx="3" fill="url(#bg)" transform="rotate(45)"/><rect x="-4" y="19" width="8" height="11" rx="3" fill="url(#bg)" transform="rotate(45)"/></g><path d="M 38 82 L 52 64" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/><circle cx="34" cy="85" r="8" fill="#fff" opacity="0.92"/><circle cx="34" cy="85" r="4" fill="#059669"/><path d="M 30 82 L 38 82" stroke="#047857" stroke-width="2" stroke-linecap="round"/></svg>`
+  },
+  C: {
+    name: "The Storyteller",
+    tagline: "You give ideas a voice",
+    desc: "You understand that the most powerful tool in the world is a great story. You have a natural instinct for narrative, empathy, and language — and you know that how you say something is just as important as what you say.",
+    careers: ["Content Strategist","Copywriter","Film Director","Brand Strategist","Journalist","Screenwriter"],
+    color: "#7C3AED",
+    icon: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></linearGradient></defs><circle cx="60" cy="60" r="58" fill="url(#cg)" opacity="0.18"/><rect x="30" y="38" width="27" height="40" rx="5" fill="url(#cg)"/><rect x="63" y="38" width="27" height="40" rx="5" fill="#5B21B6"/><line x1="60" y1="38" x2="60" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><rect x="35" y="47" width="17" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="35" y="53" width="14" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="35" y="59" width="17" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="35" y="65" width="11" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="68" y="47" width="17" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="68" y="53" width="14" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="68" y="59" width="17" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><rect x="68" y="65" width="13" height="2.5" rx="1.5" fill="#fff" opacity="0.7"/><path d="M 74 30 Q 88 22 93 38 L 70 57 Z" fill="#fff" opacity="0.92"/><line x1="74" y1="30" x2="71" y2="57" stroke="#7C3AED" stroke-width="1.5"/></svg>`
+  },
+  D: {
+    name: "The Organizer",
+    tagline: "You make chaos make sense",
+    desc: "You have a gift for systems, structure, and strategy. Where others see a mess, you see a solvable puzzle. You bring clarity and order to creative chaos — and that makes you completely invaluable on any creative team.",
+    careers: ["Creative Producer","Project Manager","Creative Director","Event Producer","Marketing Strategist"],
+    color: "#D97706",
+    icon: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/></linearGradient></defs><circle cx="60" cy="60" r="58" fill="url(#dg)" opacity="0.18"/><rect x="34" y="36" width="52" height="56" rx="7" fill="url(#dg)"/><rect x="34" y="36" width="52" height="14" rx="7" fill="#B45309"/><rect x="52" y="29" width="16" height="14" rx="5" fill="#92400E"/><rect x="44" y="56" width="9" height="9" rx="2.5" fill="#fff" opacity="0.95"/><path d="M 45.5 60.5 L 48 63 L 52 58" stroke="#D97706" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="56" y="56" width="22" height="9" rx="3" fill="rgba(255,255,255,0.45)"/><rect x="44" y="69" width="9" height="9" rx="2.5" fill="#fff" opacity="0.95"/><path d="M 45.5 73.5 L 48 76 L 52 71" stroke="#D97706" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="56" y="69" width="18" height="9" rx="3" fill="rgba(255,255,255,0.45)"/><rect x="44" y="82" width="9" height="9" rx="2.5" fill="rgba(255,255,255,0.35)"/><rect x="56" y="82" width="20" height="9" rx="3" fill="rgba(255,255,255,0.25)"/></svg>`
+  }
+};
+
+// ── STATE ──
+let qi = 0, scores = {A:0,B:0,C:0,D:0}, sName = '';
+
+// ── SCREEN UTILS ──
+function go(toId) {
+  const prev = document.querySelector('.screen.active');
+  const next = document.getElementById(toId);
+  if (prev) { prev.classList.remove('active'); prev.classList.add('gone'); }
+  next.classList.add('active');
+  setTimeout(() => { if (prev) prev.classList.remove('gone'); }, 500);
+}
+
+// ── QUIZ LOGIC ──
+function startQuiz() {
+  qi = 0; scores = {A:0,B:0,C:0,D:0};
+  renderQ();
+  go('s-question');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function renderQ() {
+  const q = Q[qi], total = Q.length;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-counter').textContent = `${qi+1} of ${total}`;
+  document.getElementById('prog-fill').style.width = `${(qi/total)*100}%`;
+  const el = document.getElementById('answers');
+  el.innerHTML = '';
+  shuffle(q.answers).forEach(a => {
+    const d = document.createElement('div');
+    d.className = 'a-card';
+    d.innerHTML = `<span class="a-emoji">${a.e}</span><span class="a-text">${a.t}</span><div class="check"><svg viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10 11.5,2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+    d.addEventListener('click', () => pick(a.p, d));
+    el.appendChild(d);
+  });
+  // Scroll top
+  document.querySelector('.q-body').scrollTop = 0;
+}
+
+function pick(p, card) {
+  if (card.classList.contains('selected')) return;
+  document.querySelectorAll('.a-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  scores[p]++;
+  setTimeout(() => {
+    qi++;
+    if (qi < Q.length) renderQ();
+    else go('s-name');
+  }, 420);
+}
+
+function getTop() {
+  return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+}
+
+function submitReveal() {
+  sName = (document.getElementById('name-in').value.trim()) || 'Friend';
+  const p = getTop(), pd = PERSONAS[p];
+  document.getElementById('p-icon').innerHTML = pd.icon;
+  document.getElementById('p-name').textContent = pd.name;
+  document.getElementById('p-tag').textContent = `"${pd.tagline}"`;
+  document.getElementById('p-desc').textContent = pd.desc;
+  document.getElementById('p-badge-name').textContent = pd.name;
+  document.getElementById('p-careers').innerHTML = pd.careers.map(c=>`<span class="chip">${c}</span>`).join('');
+  go('s-result');
+  launchConfetti();
+  pushAirtable(sName, p, pd.name);
+}
+
+// ── AIRTABLE ──
+async function pushAirtable(name, code, pname) {
+  if (!AT_TOKEN || AT_TOKEN.startsWith('YOUR_')) return;
+  try {
+    await fetch(`https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: {
+        Name: name, 'Quiz Number': 1, 'Quiz Name': 'What Kind of Creator Are You?',
+        'Persona Code': code, 'Persona Name': pname, Timestamp: new Date().toISOString()
+      }})
+    });
+  } catch(e) { console.warn('Airtable error:', e); }
+}
+
+// ── CONFETTI ──
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ['#FF6347','#7B2FBE','#059669','#F59E0B','#fff','#FF8C6B'];
+  const pieces = Array.from({length:70}, () => ({
+    x: Math.random()*canvas.width, y: -20,
+    w: Math.random()*10+5, h: Math.random()*6+3,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    vx: (Math.random()-0.5)*4, vy: Math.random()*4+3,
+    rot: Math.random()*360, rv: (Math.random()-0.5)*8,
+    life: 1
+  }));
+  let done = false;
+  function draw() {
+    if (done) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.rv;
+      p.life -= 0.008;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (pieces.every(p => p.life <= 0)) done = true;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
