@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative Persona Badge Sheet — Print Ready</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #EBEBF5;
+      padding: 32px;
+    }
+    h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; color: #1a1a2e; }
+    .subtitle { font-size: 13px; color: #888; margin-bottom: 36px; }
+    .day-section { margin-bottom: 52px; }
+    .day-header {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #aaa; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd;
+    }
+    .badges-row { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
+    .badge-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+    .badge {
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      /* enamel pin ring */
+      box-shadow:
+        0 0 0 5px #fff,
+        0 0 0 8px rgba(0,0,0,0.12),
+        0 6px 24px rgba(0,0,0,0.2);
+    }
+    /* inner ring (enamel pin feel) */
+    .badge::after {
+      content: '';
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .badge img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+    /* text sits above everything */
+    .badge-text {
+      position: absolute; bottom: 22px; left: 0; right: 0;
+      z-index: 20; text-align: center;
+    }
+    .badge-name {
+      display: block;
+      font-size: 13px; font-weight: 900; color: #fff;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5), 0 0 20px rgba(0,0,0,0.3);
+      letter-spacing: 0.01em; line-height: 1.2;
+    }
+    .badge-label { font-size: 12px; font-weight: 700; color: #666; }
+
+    /* gradients per day */
+    .d1a { --g: linear-gradient(150deg, #B366E8 0%, #5B21B6 100%); }
+    .d1b { --g: linear-gradient(150deg, #A855F7 0%, #4C1D95 100%); }
+    .d1c { --g: linear-gradient(150deg, #C084FC 0%, #6D28D9 100%); }
+    .d1d { --g: linear-gradient(150deg, #9333EA 0%, #3B0764 100%); }
+
+    .d2a { --g: linear-gradient(150deg, #2DD4BF 0%, #065F46 100%); }
+    .d2b { --g: linear-gradient(150deg, #34D399 0%, #064E3B 100%); }
+    .d2c { --g: linear-gradient(150deg, #10B981 0%, #022C22 100%); }
+    .d2d { --g: linear-gradient(150deg, #6EE7B7 0%, #047857 100%); }
+
+    .d3a { --g: linear-gradient(150deg, #818CF8 0%, #3730A3 100%); }
+    .d3b { --g: linear-gradient(150deg, #6366F1 0%, #1E1B4B 100%); }
+    .d3c { --g: linear-gradient(150deg, #A5B4FC 0%, #4338CA 100%); }
+    .d3d { --g: linear-gradient(150deg, #7C3AED 0%, #312E81 100%); }
+
+    .d4a { --g: linear-gradient(150deg, #F472B6 0%, #9D174D 100%); }
+    .d4b { --g: linear-gradient(150deg, #EC4899 0%, #831843 100%); }
+    .d4c { --g: linear-gradient(150deg, #FB7185 0%, #BE123C 100%); }
+    .d4d { --g: linear-gradient(150deg, #F9A8D4 0%, #9F1239 100%); }
+
+    @media print {
+      body { background: #fff; padding: 12px; }
+      h1, .subtitle { display: none; }
+      .day-header { color: #bbb; border-color: #eee; }
+      .badge { box-shadow: 0 0 0 4px #fff, 0 0 0 6px #ccc; }
+      .day-section { page-break-inside: avoid; }
+      @page { margin: 0.5in; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Creative Career Persona — Badge Sheet</h1>
+<p class="subtitle">Print on cardstock · cut on circle lines · hand out after each quiz</p>
+
+<!-- ─────────────────────────── DAY 1 ─────────────────────────── -->
+<div class="day-section">
+  <div class="day-header">Day 1 — What Kind of Creator Are You?</div>
+  <div class="badges-row">
+
+    <!-- THE ARTIST -->
+    <div class="badge-wrap">
+      <div class="badge d1a">
+        <img src="badges/the-artist.png" alt="The Artist" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE BUILDER -->
+    <div class="badge-wrap">
+      <div class="badge d1b">
+        <img src="badges/the-builder.png" alt="The Builder" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE STORYTELLER -->
+    <div class="badge-wrap">
+      <div class="badge d1c">
+        <img src="badges/the-storyteller.png" alt="The Storyteller" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE ORGANIZER -->
+    <div class="badge-wrap">
+      <div class="badge d1d">
+        <img src="badges/the-organizer.png" alt="The Organizer" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─────────────────────────── DAY 2 ─────────────────────────── -->
+<div class="day-section">
+  <div class="day-header">Day 2 — How Do You Make Things Happen?</div>
+  <div class="badges-row">
+
+    <!-- THE COLLABORATOR -->
+    <div class="badge-wrap">
+      <div class="badge d2a">
+        <img src="badges/the-collaborator.png" alt="The Collaborator" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE VISIONARY -->
+    <div class="badge-wrap">
+      <div class="badge d2b">
+        <img src="badges/the-visionary.png" alt="The Visionary" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE DIRECTOR -->
+    <div class="badge-wrap">
+      <div class="badge d2c">
+        <img src="badges/the-director.png" alt="The Director" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE CATALYST -->
+    <div class="badge-wrap">
+      <div class="badge d2d">
+        <img src="badges/the-catalyst.png" alt="The Catalyst" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─────────────────────────── DAY 3 ─────────────────────────── -->
+<div class="day-section">
+  <div class="day-header">Day 3 — What Fuels Your Fire?</div>
+  <div class="badges-row">
+
+    <!-- THE INNOVATOR -->
+    <div class="badge-wrap">
+      <div class="badge d3a">
+        <img src="badges/the-innovator.png" alt="The Innovator" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE CONNECTOR -->
+    <div class="badge-wrap">
+      <div class="badge d3b">
+        <img src="badges/the-connector.png" alt="The Connector" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE CRAFTSPERSON -->
+    <div class="badge-wrap">
+      <div class="badge d3c">
+        <img src="badges/the-craftsperson.png" alt="The Craftsperson" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─────────────────────────── DAY 4 ─────────────────────────── -->
+<div class="day-section">
+  <div class="day-header">Day 4 — What's Your Creative Superpower?</div>
+  <div class="badges-row">
+
+    <!-- THE STRATEGIST -->
+    <div class="badge-wrap">
+      <div class="badge d4a">
+        <img src="badges/the-strategist.png" alt="The Strategist" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE MAKER -->
+    <div class="badge-wrap">
+      <div class="badge d4b">
+        <img src="badges/the-maker.png" alt="The Maker" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE PERFORMER -->
+    <div class="badge-wrap">
+      <div class="badge d4c">
+        <img src="badges/the-performer.png" alt="The Performer" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- THE DREAMER -->
+    <div class="badge-wrap">
+      <div class="badge d4d">
+        <img src="badges/the-dreamer.png" alt="The Dreamer" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
