@@ -203,9 +203,9 @@
   <span class="entry-badge">🏆 All 4 Days Complete</span>
   <span class="entry-icon">🌟</span>
   <h1 class="entry-title">Your Creative Career Profile</h1>
-  <p class="entry-sub">Enter the same name from all four quizzes. We'll show your complete persona and email your results.</p>
+  <p class="entry-sub">Enter the same name from all four quizzes to see your complete creative profile.</p>
   <input class="entry-input" type="text" id="name-in" placeholder="Your first name" autocomplete="off" autocorrect="off">
-  <input class="entry-input" type="email" id="email-in" placeholder="Your email address" autocomplete="email" style="margin-top:-8px;">
+  <input class="entry-input" type="email" id="email-in" placeholder="Email for results (optional)" autocomplete="email" style="margin-top:-8px;opacity:0.7;">
   <button class="btn" id="lookup-btn" onclick="lookupResults()">See my profile →</button>
   <p class="error-msg" id="error-msg"></p>
 </div>
@@ -245,8 +245,8 @@
 // ─────────────────────────────────────────────
 // AIRTABLE CONFIG
 // ─────────────────────────────────────────────
-const AT_TOKEN = 'YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN';
-const AT_BASE  = 'YOUR_BASE_ID';
+const AT_TOKEN = 'patnwEPTgAqlYYblb.877a87ba1a57e8c87295502e29bb55ca59331c8eee9e56bae3e3542a3e43ad13';
+const AT_BASE  = 'appZEqQA7AitFTjYc';
 const AT_TABLE = 'Quiz Results';
 // ─────────────────────────────────────────────
 
@@ -525,7 +525,7 @@ async function fetchAirtable(name) {
     ];
   }
   const formula = encodeURIComponent(`{Name}="${name}"`);
-  const url = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}?filterByFormula=${formula}&sort[0][field]=Quiz%20Number&sort[0][direction]=asc`;
+  const url = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}?filterByFormula=${formula}&sort[0][field]=Day&sort[0][direction]=asc`;
   const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AT_TOKEN}` } });
   if (!res.ok) throw new Error(`Airtable error: ${res.status}`);
   const data = await res.json();
@@ -554,7 +554,7 @@ function renderResults(name, records) {
 
   // Build day results map
   const byDay = {};
-  records.forEach(r => { byDay[r.fields['Quiz Number']] = r.fields['Persona Name']; });
+  records.forEach(r => { byDay[r.fields['Day']] = r.fields['Persona']; });
 
   const DAY_LABELS = ['', 'What Kind of Creator?', 'How You Make Things Happen', 'What Fuels Your Fire', 'Your Creative Superpower'];
 
@@ -605,10 +605,26 @@ function renderResults(name, records) {
 
   launchConfetti();
 
-  // Send email
-  if (studentEmail && !EJ_KEY.startsWith('YOUR_')) {
-    sendResultsEmail(name, studentEmail, cp, byDay);
+  // Save completion record to Airtable (with email + combined persona)
+  if (!AT_TOKEN.startsWith('YOUR_')) {
+    saveCompletionRecord(name, studentEmail, cp.name, byDay);
   }
+}
+
+async function saveCompletionRecord(name, email, combinedPersona, byDay) {
+  try {
+    await fetch(`https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: {
+        Name: name,
+        Email: email || '',
+        Day: 0,
+        Persona: combinedPersona,
+        Timestamp: new Date().toISOString()
+      }})
+    });
+  } catch(e) { console.warn('Airtable completion save error:', e); }
 }
 
 async function sendResultsEmail(name, email, cp, byDay) {
