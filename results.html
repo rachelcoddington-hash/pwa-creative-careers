@@ -620,8 +620,7 @@ async function saveCompletionRecord(name, email, combinedPersona, byDay) {
         Name: name,
         Email: email || '',
         Day: 0,
-        Persona: combinedPersona,
-        Timestamp: new Date().toISOString()
+        Persona: combinedPersona
       }})
     });
   } catch(e) { console.warn('Airtable completion save error:', e); }
