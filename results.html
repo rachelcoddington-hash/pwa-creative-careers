@@ -245,7 +245,7 @@
 // ─────────────────────────────────────────────
 // AIRTABLE CONFIG
 // ─────────────────────────────────────────────
-const AT_TOKEN = 'patnwEPTgAqlYYblb.877a87ba1a57e8c87295502e29bb55ca59331c8eee9e56bae3e3542a3e43ad13';
+const AT_TOKEN = 'patP9Gs0OiyIsuFzj.0930db81e3fc801a78ec83e1bb0232164287e4e36ea709b2fbf8cd96ce39171f';
 const AT_BASE  = 'appZEqQA7AitFTjYc';
 const AT_TABLE = 'Quiz Results';
 // ─────────────────────────────────────────────
@@ -598,7 +598,7 @@ function renderResults(name, records) {
     <div class="email-card">
       <div class="email-card-icon">✉️</div>
       <div>
-        <div class="email-card-title">${studentEmail ? 'Results sent to ' + studentEmail : 'Results delivered'}</div>
+        <div class="email-card-title">${studentEmail ? 'Results will be emailed to ' + studentEmail + ' by EOD' : 'Your results will be emailed to you by EOD'}</div>
         <div class="email-card-text">Save or screenshot this page to keep your profile</div>
       </div>
     </div>`);
@@ -640,7 +640,7 @@ async function sendResultsEmail(name, email, cp, byDay) {
       day4:             byDay[4] || '—',
       careers:          cp.careers.join(', '),
     });
-    showToast('✉️ Results sent to ' + email);
+    showToast('✉️ Results will be emailed to ' + email + ' by EOD');
   } catch(err) {
     console.error('EmailJS error:', err);
     showToast('⚠️ Could not send email — save this page instead');
