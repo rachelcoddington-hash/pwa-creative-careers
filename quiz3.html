@@ -184,7 +184,7 @@
 </div>
 
 <script>
-const AT_TOKEN = 'patnwEPTgAqlYYblb.877a87ba1a57e8c87295502e29bb55ca59331c8eee9e56bae3e3542a3e43ad13';
+const AT_TOKEN = 'patP9Gs0OiyIsuFzj.0930db81e3fc801a78ec83e1bb0232164287e4e36ea709b2fbf8cd96ce39171f';
 const AT_BASE  = 'appZEqQA7AitFTjYc';
 const AT_TABLE = 'Quiz Results';
 
@@ -313,6 +313,25 @@ function pick(p, card) {
   card.classList.add('selected'); scores[p]++;
   setTimeout(() => { qi++; qi < Q.length ? renderQ() : go('s-name'); }, 420);
 }
+async function checkNameAndReveal() {
+  const name = document.getElementById('name-in').value.trim();
+  if (!name) { alert('Please enter your first name.'); return; }
+  const btn = document.getElementById('reveal-btn');
+  btn.textContent = 'Checking…'; btn.disabled = true;
+  try {
+    const formula = encodeURIComponent(`{Name}="${name}"`);
+    const url = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}?filterByFormula=${formula}&maxRecords=1`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${AT_TOKEN}` } });
+    const data = await res.json();
+    if (!data.records || data.records.length === 0) {
+      const go = confirm(`We didn't find "${name}" from a previous day — check your spelling!\n\nPress OK to continue anyway, or Cancel to re-enter your name.`);
+      if (!go) { btn.textContent = 'Reveal my persona →'; btn.disabled = false; return; }
+    }
+  } catch(e) { /* network issue — just continue */ }
+  btn.textContent = 'Reveal my persona →'; btn.disabled = false;
+  submitReveal();
+}
+
 function submitReveal() {
   sName = document.getElementById('name-in').value.trim() || 'Friend';
   const p = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
