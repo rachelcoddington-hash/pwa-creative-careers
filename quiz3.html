@@ -164,9 +164,9 @@
 <div id="s-name" class="screen">
   <p class="name-eyebrow">Almost done</p>
   <h2 class="name-title">Before we reveal<br>your persona...</h2>
-  <p class="name-sub">What's your name?</p>
+  <p class="name-sub">Use the same first name as Day 1 — spelling matters!</p>
   <input class="name-input" type="text" id="name-in" placeholder="Your first name" autocomplete="off" autocorrect="off">
-  <button class="btn" onclick="submitReveal()">Reveal my persona →</button>
+  <button class="btn" id="reveal-btn" onclick="checkNameAndReveal()">Reveal my persona →</button>
 </div>
 
 <div id="s-result" class="screen">
@@ -184,8 +184,8 @@
 </div>
 
 <script>
-const AT_TOKEN = 'YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN';
-const AT_BASE  = 'YOUR_BASE_ID';
+const AT_TOKEN = 'patnwEPTgAqlYYblb.877a87ba1a57e8c87295502e29bb55ca59331c8eee9e56bae3e3542a3e43ad13';
+const AT_BASE  = 'appZEqQA7AitFTjYc';
 const AT_TABLE = 'Quiz Results';
 
 const Q = [
@@ -331,7 +331,7 @@ async function pushAirtable(name, code, pname) {
     await fetch(`https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fields: { Name: name, 'Quiz Number': 3, 'Quiz Name': 'What Fuels Your Fire?', 'Persona Code': code, 'Persona Name': pname, Timestamp: new Date().toISOString() }})
+      body: JSON.stringify({ fields: { Name: name, Day: 3, Persona: pname, Timestamp: new Date().toISOString() } })
     });
   } catch(e) { console.warn('Airtable error:', e); }
 }
